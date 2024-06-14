@@ -1,16 +1,15 @@
-package br.com.erudio.integrationtests.controllers.withjson;
+package br.com.erudio.integrationtests.controllers.withxml;
 
 import br.com.erudio.configs.TestConfigs;
 import br.com.erudio.integrationtests.AbstraticIntegrationTest;
 import br.com.erudio.integrationtests.vo.AccountCredentialsVO;
 import br.com.erudio.integrationtests.vo.BookVO;
-import br.com.erudio.integrationtests.vo.PersonVO;
 import br.com.erudio.integrationtests.vo.TokenVO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -19,10 +18,6 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
@@ -31,17 +26,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class BookControllerJsonTest extends AbstraticIntegrationTest {
+public class BookControllerXmlTest extends AbstraticIntegrationTest {
 
     private static RequestSpecification specification;
 
-    private static ObjectMapper objectMapper;
+    private static XmlMapper objectMapper;
 
     private static BookVO book;
 
     @BeforeAll
     public static void setup() {
-        objectMapper = new ObjectMapper();
+        objectMapper = new XmlMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         book = new BookVO();
     }
@@ -55,7 +50,8 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
         var accessToken = given()
                 .basePath("/auth/signin")
                 .port(TestConfigs.SERVER_PORT)
-                .contentType(TestConfigs.CONTENT_TYPE_JSON)
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
                 .body(user)
                 .when()
                 .post()
@@ -81,7 +77,8 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
         mockBook();
 
         var content = given().spec(specification)
-                .contentType(TestConfigs.CONTENT_TYPE_JSON)
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
                 .body(book)
                 .when()
                 .post()
@@ -96,13 +93,13 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
 
         assertNotNull(persistedBook);
 
-        assertNotNull(persistedBook.getKey());
+        assertNotNull(persistedBook.getId());
         assertNotNull(persistedBook.getAuthor());
         assertNotNull(persistedBook.getPrice());
         assertNotNull(persistedBook.getTitle());
         assertNotNull(persistedBook.getLaunchDate());
 
-        assertTrue(persistedBook.getKey() > 0);
+        assertTrue(persistedBook.getId() > 0);
 
 
         assertEquals("Clean code", persistedBook.getTitle());
@@ -116,7 +113,8 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
         book.setTitle("Código Limpo");
 
         var content = given().spec(specification)
-                .contentType(TestConfigs.CONTENT_TYPE_JSON)
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
                 .body(book)
                 .when()
                 .put()
@@ -131,13 +129,13 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
 
         assertNotNull(persistedBook);
 
-        assertNotNull(persistedBook.getKey());
+        assertNotNull(persistedBook.getId());
         assertNotNull(persistedBook.getAuthor());
         assertNotNull(persistedBook.getPrice());
         assertNotNull(persistedBook.getTitle());
         assertNotNull(persistedBook.getLaunchDate());
 
-        assertEquals(book.getKey(), persistedBook.getKey());
+        assertEquals(book.getId(), persistedBook.getId());
 
         assertEquals("Código Limpo", persistedBook.getTitle());
         assertEquals("Robert Cecil Martin", persistedBook.getAuthor());
@@ -150,8 +148,9 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
         mockBook();
 
         var content = given().spec(specification)
-                .contentType(TestConfigs.CONTENT_TYPE_JSON)
-                .pathParam("id", book.getKey())
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
+                .pathParam("id", book.getId())
                 .when()
                 .get("{id}")
                 .then()
@@ -165,13 +164,13 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
 
         assertNotNull(persistedBook);
 
-        assertNotNull(persistedBook.getKey());
+        assertNotNull(persistedBook.getId());
         assertNotNull(persistedBook.getPrice());
         assertNotNull(persistedBook.getAuthor());
         assertNotNull(persistedBook.getTitle());
         assertNotNull(persistedBook.getLaunchDate());
 
-        assertEquals(book.getKey(), persistedBook.getKey());
+        assertEquals(book.getId(), persistedBook.getId());
 
         assertEquals("Código Limpo", persistedBook.getTitle());
         assertEquals("Robert Cecil Martin", persistedBook.getAuthor());
@@ -183,8 +182,9 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
     public void testDelete() throws JsonMappingException, JsonProcessingException {
 
         given().spec(specification)
-                .contentType(TestConfigs.CONTENT_TYPE_JSON)
-                .pathParam("id", book.getKey())
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
+                .pathParam("id", book.getId())
                 .when()
                 .delete("{id}")
                 .then()
@@ -195,7 +195,8 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
     @Order(5)
     public void testFindAll() throws JsonProcessingException, JsonProcessingException {
         var content = given().spec(specification)
-                .contentType(TestConfigs.CONTENT_TYPE_JSON)
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
                 .when()
                 .get()
                 .then()
@@ -207,10 +208,10 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
 
         List<BookVO> persistedBook = objectMapper.readValue(content, new TypeReference<List<BookVO>>() {});
         BookVO foundBookOne = persistedBook.get(1);
-        assertEquals(2,foundBookOne.getKey());
+        assertEquals(2,foundBookOne.getId());
 
         assertNotNull(foundBookOne);
-        assertNotNull(foundBookOne.getKey());
+        assertNotNull(foundBookOne.getId());
         assertNotNull(foundBookOne.getPrice());
         assertNotNull(foundBookOne.getAuthor());
         assertNotNull(foundBookOne.getTitle());
@@ -222,10 +223,10 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
         assertEquals("Design Patterns", foundBookOne.getTitle());
 
         BookVO foundBookSeven = persistedBook.get(3);
-        assertEquals(4, foundBookSeven.getKey());
+        assertEquals(4, foundBookSeven.getId());
 
         assertNotNull(foundBookSeven);
-        assertNotNull(foundBookSeven.getKey());
+        assertNotNull(foundBookSeven.getId());
         assertNotNull(foundBookSeven.getPrice());
         assertNotNull(foundBookSeven.getAuthor());
         assertNotNull(foundBookSeven.getTitle());
@@ -248,7 +249,8 @@ public class BookControllerJsonTest extends AbstraticIntegrationTest {
                 .build();
 
         given().spec(specificationWithoutToken)
-                .contentType(TestConfigs.CONTENT_TYPE_JSON)
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
                 .when()
                 .get()
                 .then()
