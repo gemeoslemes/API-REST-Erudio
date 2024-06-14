@@ -41,7 +41,7 @@ public class BookController {
     }
 
     @GetMapping(value = "/{id}",
-                produces = {MediaType.APPLICATION_YML, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON})
+                produces = {MediaType.APPLICATION_YML, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(summary = "Find a Book", description = "Find a Book",
         tags = {"Books"},
         responses = {
