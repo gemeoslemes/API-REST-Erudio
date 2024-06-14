@@ -1,4 +1,4 @@
-package br.com.erudio.data.vo.v1;
+package br.com.erudio.integrationtests.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -8,13 +8,12 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-@JsonPropertyOrder({"id", "author", "launch_date", "price", "title"})
+@JsonPropertyOrder({"id", "author", "launchDate", "price", "title"})
 public class BookVO extends RepresentationModel<BookVO> implements Serializable {
     private static final long serialVersionUID = 1L;
     @JsonProperty("id")
     private Long key;
     private String author;
-    @JsonProperty("launch_date")
     private Date launchDate;
     private Double price;
     private String title;
