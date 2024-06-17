@@ -147,7 +147,6 @@ public class PersonControllerXmlTest extends AbstraticIntegrationTest {
     @Test
     @Order(3)
     public void testDisableFindById() throws JsonMappingException, JsonProcessingException {
-        mockPerson();
 
         var content = given().spec(specification)
                 .contentType(TestConfigs.CONTENT_TYPE_XML)
